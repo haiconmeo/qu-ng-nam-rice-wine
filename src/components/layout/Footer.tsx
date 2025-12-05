@@ -108,7 +108,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="mt-12 pt-6 border-t border-cream/20 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-cream/60">
-          <p>© 2024 Rượu Gạo Lứt Quảng Nam. Tất cả quyền được bảo lưu.</p>
+          <p>© 2024 Rượu Gạo Lứt Đại Lộc. Tất cả quyền được bảo lưu.</p>
           <p>Sản phẩm có cồn. Người dưới 18 tuổi không được sử dụng.</p>
         </div>
       </div>
