@@ -59,7 +59,7 @@ export function Navbar() {
               className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <Phone className="w-4 h-4" />
-              <span className="font-medium">0905 123 456</span>
+              <span className="font-medium">0963 056 357</span>
             </a>
 
             {/* Order button */}
@@ -108,7 +108,7 @@ export function Navbar() {
                   className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground"
                 >
                   <Phone className="w-4 h-4" />
-                  <span>Hotline: 0905 123 456</span>
+                  <span>Hotline: 0963 056 357</span>
                 </a>
               </div>
             </div>

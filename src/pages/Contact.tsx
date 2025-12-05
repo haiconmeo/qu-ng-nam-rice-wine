@@ -55,7 +55,7 @@ const Contact = () => {
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Địa chỉ</h3>
                     <p className="text-muted-foreground">
-                      Xã Điện Phước, Điện Bàn, Quảng Nam
+                      Xã Vu Gia, tp.Đà Nẵng
                     </p>
                   </div>
                 </div>
@@ -66,8 +66,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Điện thoại / Zalo</h3>
-                    <a href="tel:0905123456" className="text-primary hover:underline">
-                      0905 123 456
+                    <a href="tel:0963056357" className="text-primary hover:underline">
+                      0963056357
                     </a>
                   </div>
                 </div>
@@ -78,8 +78,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Email</h3>
-                    <a href="mailto:contact@ruougaolut.vn" className="text-primary hover:underline">
-                      contact@ruougaolut.vn
+                    <a href="admin@ruougaolutdailoc.com" className="text-primary hover:underline">
+                      admin@ruougaolutdailoc.com
                     </a>
                   </div>
                 </div>
@@ -102,7 +102,7 @@ const Contact = () => {
                 <h3 className="font-semibold text-foreground mb-4">Kết nối với chúng tôi</h3>
                 <div className="flex gap-3">
                   <a
-                    href="https://zalo.me/0905123456"
+                    href="https://zalo.me/0963056357"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
@@ -111,7 +111,7 @@ const Contact = () => {
                     Zalo
                   </a>
                   <a
-                    href="https://facebook.com"
+                    href="https://www.facebook.com/profile.php?id=100063928186819"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2 bg-[#1877f2] text-white rounded-lg hover:opacity-90 transition-opacity"
@@ -127,7 +127,7 @@ const Contact = () => {
                 <h3 className="font-semibold text-foreground mb-4">Bản đồ</h3>
                 <div className="aspect-video bg-muted rounded-xl overflow-hidden">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.0123456789!2d108.123456!3d15.876543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTXCsDUyJzM1LjYiTiAxMDjCsDA3JzI0LjQiRQ!5e0!3m2!1svi!2s!4v1234567890"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3838.105721689353!2d108.07018727575725!3d15.851039845240878!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3142030054d9d97d%3A0x59c76cd74b72dcc0!2zUsaw4bujdSBn4bqhbyBs4bupdCDEkOG6oWkgTOG7mWM!5e0!3m2!1svi!2s!4v1764942540382!5m2!1svi!2s"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
