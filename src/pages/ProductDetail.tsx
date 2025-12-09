@@ -1,15 +1,28 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Star, Minus, Plus, ShoppingBag, Phone, ChevronLeft, Check } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { getProductBySlug, formatPrice } from "@/data/products";
+import { getProductBySlug, formatPrice, Product } from "@/data/products";
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const product = getProductBySlug(slug || "");
-  const [selectedVariant, setSelectedVariant] = useState(0);
+  
+  const { data: product, isLoading, error } = useQuery<Product | undefined>({
+    queryKey: ["product", slug],
+    queryFn: () => getProductBySlug(slug || ""),
+    enabled: !!slug, // Chỉ chạy query khi có slug
+  });
+
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+
+  if (isLoading) {
+    return <Layout><div className="container-custom py-20 text-center">Đang tải sản phẩm...</div></Layout>;
+  }
+
+  if (error || !product) {
 
   if (!product) {
     return (
@@ -24,7 +37,7 @@ const ProductDetail = () => {
     );
   }
 
-  const variant = product.variants[selectedVariant];
+  const variant = product.variants[selectedVariantIndex];
 
   return (
     <Layout>
@@ -44,19 +57,17 @@ const ProductDetail = () => {
             {/* Gallery */}
             <div className="space-y-4">
               <div className="aspect-square bg-card rounded-xl overflow-hidden shadow-card">
-                <div className="w-full h-full bg-gradient-to-br from-primary/10 to-rice/10 flex items-center justify-center">
-                  <div className="w-40 h-40 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="font-serif text-6xl text-primary font-bold">酒</span>
-                  </div>
-                </div>
+                <img src={product.images[0] || '/placeholder.svg'} alt={product.name} className="w-full h-full object-cover" />
               </div>
               {/* Thumbnails */}
               <div className="flex gap-3">
-                {[1, 2, 3].map((i) => (
+                {product.images.slice(0, 4).map((img, i) => (
                   <div key={i} className="w-20 h-20 bg-card rounded-lg overflow-hidden shadow-card cursor-pointer hover:ring-2 ring-primary transition-all">
-                    <div className="w-full h-full bg-gradient-to-br from-primary/10 to-rice/10 flex items-center justify-center">
-                      <span className="font-serif text-xl text-primary font-bold">酒</span>
-                    </div>
+                    <img
+                      src={img}
+                      alt={`${product.name} thumbnail ${i + 1}`}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
@@ -72,7 +83,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
                 <span className="text-sm font-medium">{product.rating}</span>
-                <span className="text-sm text-muted-foreground">({product.reviewCount} đánh giá)</span>
+                <span className="text-sm text-muted-foreground">({product.review_count} đánh giá)</span>
               </div>
 
               {/* Title */}
@@ -85,9 +96,9 @@ const ProductDetail = () => {
                 <span className="text-2xl lg:text-3xl font-bold text-primary">
                   {formatPrice(variant.price)}
                 </span>
-                {variant.originalPrice && (
+                {variant.original_price && (
                   <span className="text-lg text-muted-foreground line-through">
-                    {formatPrice(variant.originalPrice)}
+                    {formatPrice(variant.original_price)}
                   </span>
                 )}
               </div>
@@ -106,9 +117,9 @@ const ProductDetail = () => {
                   {product.variants.map((v, i) => (
                     <button
                       key={v.id}
-                      onClick={() => setSelectedVariant(i)}
+                      onClick={() => setSelectedVariantIndex(i)}
                       className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                        selectedVariant === i
+                        selectedVariantIndex === i
                           ? 'border-primary bg-primary text-primary-foreground'
                           : 'border-border hover:border-primary'
                       }`}
@@ -177,13 +188,14 @@ const ProductDetail = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">Nồng độ cồn:</span>
-                    <span className="ml-2 font-medium text-foreground">{product.alcoholContent}</span>
+                    <span className="ml-2 font-medium text-foreground">{product.alcohol_content}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Quy trình ủ:</span>
-                    <span className="ml-2 font-medium text-foreground">{product.agingProcess}</span>
+                    <span className="ml-2 font-medium text-foreground">{product.aging_process}</span>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -192,5 +204,5 @@ const ProductDetail = () => {
     </Layout>
   );
 };
-
+}
 export default ProductDetail;

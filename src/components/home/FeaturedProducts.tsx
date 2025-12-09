@@ -1,11 +1,25 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Star, ShoppingBag } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { getFeaturedProducts, formatPrice } from "@/data/products";
+import { getFeaturedProducts, formatPrice, Product } from "@/data/products";
 
 export function FeaturedProducts() {
-  const products = getFeaturedProducts();
+  const { data: products, isLoading, error } = useQuery<Product[]>({
+    queryKey: ["featuredProducts"],
+    queryFn: getFeaturedProducts,
+  });
 
+  // While loading, you can show a placeholder or nothing
+  if (isLoading) {
+    return null; // Or a loading skeleton component
+  }
+
+  // If there's an error or no products, don't render the section
+  if (error || !products || products.length === 0) {
+    return null;
+  }
+  
   return (
     <section className="py-16 lg:py-24 bg-background">
       <div className="container-custom">
@@ -39,7 +53,7 @@ export function FeaturedProducts() {
                 </div>
                 
                 {/* Badge */}
-                {product.variants[0].originalPrice && (
+                {product.variants[0]?.original_price && (
                   <div className="absolute top-4 left-4 px-2 py-1 bg-destructive text-destructive-foreground text-xs font-bold rounded">
                     SALE
                   </div>
@@ -51,8 +65,8 @@ export function FeaturedProducts() {
                 {/* Rating */}
                 <div className="flex items-center gap-1 mb-2">
                   <Star className="w-4 h-4 fill-rice text-rice" />
-                  <span className="text-sm font-medium text-foreground">{product.rating}</span>
-                  <span className="text-sm text-muted-foreground">({product.reviewCount})</span>
+                  <span className="text-sm font-medium text-foreground">{product.rating.toFixed(1)}</span>
+                  <span className="text-sm text-muted-foreground">({product.review_count})</span>
                 </div>
 
                 {/* Title */}
@@ -62,7 +76,7 @@ export function FeaturedProducts() {
 
                 {/* Description */}
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                  {product.shortDescription}
+                  {product.short_description}
                 </p>
 
                 {/* Price & CTA */}
@@ -71,9 +85,9 @@ export function FeaturedProducts() {
                     <span className="text-lg font-bold text-primary">
                       {formatPrice(product.variants[0].price)}
                     </span>
-                    {product.variants[0].originalPrice && (
+                    {product.variants[0]?.original_price && (
                       <span className="ml-2 text-sm text-muted-foreground line-through">
-                        {formatPrice(product.variants[0].originalPrice)}
+                        {formatPrice(product.variants[0].original_price)}
                       </span>
                     )}
                   </div>

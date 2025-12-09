@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { products, formatPrice, getProductBySlug } from "@/data/products";
+import { formatPrice, getProductBySlug, getAllProducts, createOrder, Product } from "@/data/products";
 import { Check, CreditCard, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,6 +14,11 @@ const Order = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   
+  const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
+    queryKey: ["products"],
+    queryFn: getAllProducts,
+  });
+
   const preSelectedProduct = searchParams.get("product");
   const preSelectedVariant = searchParams.get("variant");
   const preSelectedQty = searchParams.get("qty");
@@ -21,18 +27,34 @@ const Order = () => {
     name: "",
     phone: "",
     address: "",
-    product: preSelectedProduct || products[0].slug,
-    variant: preSelectedVariant || products[0].variants[0].id,
+    product: preSelectedProduct || "",
+    variant: preSelectedVariant || "",
     quantity: preSelectedQty ? parseInt(preSelectedQty) : 1,
     paymentMethod: "cod",
     note: "",
   });
 
+  // Set default product once products are loaded
+  useEffect(() => {
+    if (products && products.length > 0 && !formData.product) {
+      setFormData(prev => ({
+        ...prev,
+        product: products[0].slug,
+        variant: products[0].variants?.[0]?.id || ""
+      }));
+    }
+  }, [products, formData.product]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const selectedProduct = getProductBySlug(formData.product);
-  const selectedVariant = selectedProduct?.variants.find((v) => v.id === formData.variant) || selectedProduct?.variants[0];
+  const { data: selectedProduct, isLoading: isLoadingSelectedProduct } = useQuery<Product | undefined>({
+    queryKey: ["product", formData.product],
+    queryFn: () => getProductBySlug(formData.product),
+    enabled: !!formData.product,
+  });
+
+  const selectedVariant = selectedProduct?.variants.find((v) => v.id === formData.variant);
 
   const totalPrice = selectedVariant ? selectedVariant.price * formData.quantity : 0;
 
@@ -49,16 +71,38 @@ const Order = () => {
 
     setIsSubmitting(true);
     
-    // Simulate order submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    
-    toast({
-      title: "Đặt hàng thành công!",
-      description: "Chúng tôi sẽ liên hệ xác nhận trong 30 phút.",
-    });
+    try {
+      if (!selectedProduct || !selectedVariant) {
+        throw new Error("Sản phẩm hoặc dung tích không hợp lệ.");
+      }
+
+      await createOrder({
+        customer_name: formData.name,
+        customer_phone: formData.phone,
+        customer_address: formData.address,
+        product: selectedProduct.id,
+        product_variant: selectedVariant.id,
+        quantity: formData.quantity,
+        total_price: totalPrice,
+        payment_method: formData.paymentMethod as 'cod' | 'transfer',
+        note: formData.note,
+      });
+
+      setIsSuccess(true);
+      toast({
+        title: "Đặt hàng thành công!",
+        description: "Chúng tôi sẽ liên hệ xác nhận trong 30 phút.",
+      });
+    } catch (error) {
+      console.error("Order submission failed:", error);
+      toast({
+        title: "Đặt hàng thất bại",
+        description: "Đã có lỗi xảy ra. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSuccess) {
@@ -165,16 +209,18 @@ const Order = () => {
                       id="product"
                       value={formData.product}
                       onChange={(e) => {
-                        const newProduct = getProductBySlug(e.target.value);
+                        const newProductSlug = e.target.value;
+                        const newProduct = products?.find(p => p.slug === newProductSlug);
                         setFormData({
                           ...formData,
-                          product: e.target.value,
-                          variant: newProduct?.variants[0].id || "",
+                          product: newProductSlug,
+                          variant: newProduct?.variants?.[0]?.id || "",
                         });
                       }}
                       className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                      disabled={isLoadingProducts}
                     >
-                      {products.map((p) => (
+                      {products?.map((p) => (
                         <option key={p.id} value={p.slug}>
                           {p.name}
                         </option>
@@ -185,7 +231,7 @@ const Order = () => {
                   <div>
                     <Label>Dung tích</Label>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedProduct?.variants.map((v) => (
+                      {selectedProduct?.variants?.map((v) => (
                         <button
                           key={v.id}
                           type="button"

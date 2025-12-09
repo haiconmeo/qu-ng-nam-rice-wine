@@ -1,10 +1,24 @@
 import { Link } from "react-router-dom";
 import { Star, ShoppingBag } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { products, formatPrice } from "@/data/products";
+import { getAllProducts, formatPrice, Product } from "@/data/products";
 
 const Products = () => {
+  const { data: products, isLoading, error } = useQuery<Product[]>({
+    queryKey: ["products"],
+    queryFn: getAllProducts,
+  });
+
+  if (isLoading) {
+    return <Layout><div className="container-custom py-20 text-center">Đang tải sản phẩm...</div></Layout>;
+  }
+
+  if (error) {
+    return <Layout><div className="container-custom py-20 text-center text-destructive">Lỗi khi tải sản phẩm.</div></Layout>;
+  }
+
   return (
     <Layout>
       {/* Header */}
@@ -23,7 +37,7 @@ const Products = () => {
       <section className="py-12 lg:py-16">
         <div className="container-custom">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product, index) => (
+            {products?.map((product, index) => (
               <article
                 key={product.id}
                 className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 animate-slide-up"
@@ -37,7 +51,7 @@ const Products = () => {
                     </div>
                   </div>
                   
-                  {product.variants[0].originalPrice && (
+                  {product.variants?.[0]?.original_price && (
                     <div className="absolute top-3 left-3 px-2 py-1 bg-destructive text-destructive-foreground text-xs font-bold rounded">
                       SALE
                     </div>
@@ -54,26 +68,26 @@ const Products = () => {
                 <div className="p-4">
                   <div className="flex items-center gap-1 mb-2">
                     <Star className="w-3.5 h-3.5 fill-rice text-rice" />
-                    <span className="text-sm font-medium">{product.rating}</span>
-                    <span className="text-xs text-muted-foreground">({product.reviewCount})</span>
+                    <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
+                    <span className="text-xs text-muted-foreground">({product.review_count})</span>
                   </div>
 
                   <h3 className="font-serif text-base font-semibold text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-1">
                     <Link to={`/san-pham/${product.slug}`}>{product.name}</Link>
                   </h3>
 
-                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                    {product.shortDescription}
+                  <p className="text-xs text-muted-foreground mb-3 h-8 line-clamp-2">
+                    {product.short_description}
                   </p>
 
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-base font-bold text-primary">
-                        {formatPrice(product.variants[0].price)}
+                        {formatPrice(product.variants?.[0]?.price || 0)}
                       </span>
-                      {product.variants[0].originalPrice && (
+                      {product.variants?.[0]?.original_price && (
                         <span className="ml-1.5 text-xs text-muted-foreground line-through">
-                          {formatPrice(product.variants[0].originalPrice)}
+                          {formatPrice(product.variants[0].original_price)}
                         </span>
                       )}
                     </div>

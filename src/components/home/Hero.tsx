@@ -1,8 +1,22 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Phone } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getTotalVisits } from "@/data/products";
 
 export function Hero() {
+  const { data: totalVisits } = useQuery<number>({
+    queryKey: ["totalVisits"],
+    queryFn: getTotalVisits,
+    staleTime: 1000 * 60 * 5, // Dữ liệu này không cần cập nhật quá thường xuyên, set 5 phút
+    refetchOnWindowFocus: false,
+  });
+  let visits = totalVisits || 0;
+  if (visits < 1000){
+    visits = Math.floor(visits / 10) * 10;
+  }else{
+    visits = Math.floor(visits / 100) * 100;
+  }
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Background */}
@@ -49,17 +63,23 @@ export function Hero() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-primary-foreground/20 animate-slide-up delay-300">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-12 pt-8 border-t border-primary-foreground/20 animate-slide-up delay-300">
               {[
                 { value: "3", label: "Đời gia truyền" },
                 { value: "100%", label: "Nguyên liệu hữu cơ" },
                 { value: "6+", label: "Tháng ủ chum" },
-              ].map((stat) => (
+              ].map((stat, index) => (
                 <div key={stat.label} className="text-center lg:text-left">
                   <div className="font-serif text-2xl lg:text-3xl font-bold text-rice">{stat.value}</div>
                   <div className="text-xs lg:text-sm text-primary-foreground/70">{stat.label}</div>
                 </div>
               ))}
+              {totalVisits&& (
+                <div className="text-center lg:text-left">
+                  <div className="font-serif text-2xl lg:text-3xl font-bold text-rice">{visits}+</div>
+                  <div className="text-xs lg:text-sm text-primary-foreground/70">Lượt truy cập</div>
+                </div>
+              )}
             </div>
           </div>
 

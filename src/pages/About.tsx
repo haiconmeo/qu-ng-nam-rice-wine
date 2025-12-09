@@ -1,5 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Award, Leaf, Clock, Heart } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getAwards, Award as AwardType } from "@/data/products";
 
 const About = () => {
   return (
@@ -87,6 +89,9 @@ const About = () => {
         </div>
       </section>
 
+      {/* Awards Section */}
+      <AwardsSection />
+
       {/* Values */}
       <section className="py-16 lg:py-24">
         <div className="container-custom">
@@ -117,5 +122,46 @@ const About = () => {
     </Layout>
   );
 };
+
+const AwardsSection = () => {
+  const { data: awards, isLoading } = useQuery<AwardType[]>({
+    queryKey: ['awards'],
+    queryFn: getAwards,
+  });
+
+  if (isLoading || !awards || awards.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="py-16 lg:py-24">
+      <div className="container-custom">
+        <div className="text-center mb-12">
+          <h2 className="font-serif text-2xl lg:text-3xl font-bold text-foreground">
+            Giải Thưởng & Chứng Nhận
+          </h2>
+          <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
+            Những thành tựu và sự công nhận là minh chứng cho chất lượng và tâm huyết của chúng tôi.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {awards.map((award, i) => (
+            <div key={award.id} className="flex flex-col items-center text-center p-4 animate-slide-up" style={{ animationDelay: `${i * 100}ms` }}>
+              <div className="w-24 h-24 mb-4 flex items-center justify-center">
+                {award.logo ? (
+                  <img src={award.logo} alt={award.name} className="max-w-full max-h-full object-contain" />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center"><Award className="w-8 h-8 text-primary" /></div>
+                )}
+              </div>
+              <h3 className="font-semibold text-foreground text-sm">{award.name}</h3>
+              <p className="text-xs text-muted-foreground mt-1">Năm {award.year}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default About;
